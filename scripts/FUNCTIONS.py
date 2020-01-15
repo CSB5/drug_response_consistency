@@ -95,7 +95,7 @@ def dic2csv(dic, filename):
 def getSensitivityMetrics(FeatureMatrix_sp_ic):
     ''' get  ic50, slope and cell death at GDSC mid dosage for CCLE and GDSC datasets'''
     [ic50_ccle, m_ccle]=get_ic50slope('CCLE')
-    [ic50_gdsc,m_gdsc]=get_ic50slope('GDSC')
+    [ic50_gdsc,m_gdsc]=get_ic50slope('GDSC1')
 
     ccle_ic50_list=[]
     gdsc_ic50_list=[]
@@ -112,16 +112,16 @@ def getSensitivityMetrics(FeatureMatrix_sp_ic):
         #print(row['Standard cell line name'] ,  row['Standard drug name'] , ind_cl , ind_dr)
         ccle_ic50_list.append (  ic50_ccle.values[ind_cl , ind_dr  ][0] )
         ccle_m_list.append (  m_ccle.values[ind_cl , ind_dr  ][0] )
-        ccle_cdmid_list.append (  getResponse(np.log2(row['mid_dosage']),ic50_ccle.values[ind_cl , ind_dr  ][0],m_ccle.values[ind_cl , ind_dr  ][0]) )
-        ccle_cdmax_list.append (  getResponse(np.log2(row['max_dosage']),ic50_ccle.values[ind_cl , ind_dr  ][0],m_ccle.values[ind_cl , ind_dr  ][0]) )
+        #ccle_cdmid_list.append (  getResponse(np.log2(row['mid_dosage']),ic50_ccle.values[ind_cl , ind_dr  ][0],m_ccle.values[ind_cl , ind_dr  ][0]) )
+        #ccle_cdmax_list.append (  getResponse(np.log2(row['max_dosage']),ic50_ccle.values[ind_cl , ind_dr  ][0],m_ccle.values[ind_cl , ind_dr  ][0]) )
 
 
         ind_cl=np.where( ic50_gdsc.index== row['Standard cell line name'])[0]
         ind_dr=np.where( ic50_gdsc.columns ==row['Standard drug name'] )[0]#str(gdse_dr_id[0]) )[0]
         gdsc_ic50_list.append (   ic50_gdsc.values[ind_cl , ind_dr  ][0] )
         gdsc_m_list.append (   m_gdsc.values[ind_cl , ind_dr  ][0] )
-        gdsc_cdmid_list.append (   getResponse(np.log2(row['mid_dosage']), ic50_gdsc.values[ind_cl , ind_dr  ][0], m_gdsc.values[ind_cl , ind_dr  ][0] )  )
-        gdsc_cdmax_list.append (   getResponse(np.log2(row['max_dosage']), ic50_gdsc.values[ind_cl , ind_dr  ][0], m_gdsc.values[ind_cl , ind_dr  ][0] )  )
+        #gdsc_cdmid_list.append (   getResponse(np.log2(row['mid_dosage']), ic50_gdsc.values[ind_cl , ind_dr  ][0], m_gdsc.values[ind_cl , ind_dr  ][0] )  )
+        #gdsc_cdmax_list.append (   getResponse(np.log2(row['max_dosage']), ic50_gdsc.values[ind_cl , ind_dr  ][0], m_gdsc.values[ind_cl , ind_dr  ][0] )  )
 
 
 
@@ -130,40 +130,40 @@ def getSensitivityMetrics(FeatureMatrix_sp_ic):
     FeatureMatrix_sp_ic['ic50_gdsc']=gdsc_ic50_list
     FeatureMatrix_sp_ic['m_ccle']=ccle_m_list
     FeatureMatrix_sp_ic['m_gdsc']=gdsc_m_list
-    FeatureMatrix_sp_ic['cd@midDosageOfGdsc_ccle']=ccle_cdmid_list
+    '''FeatureMatrix_sp_ic['cd@midDosageOfGdsc_ccle']=ccle_cdmid_list
     FeatureMatrix_sp_ic['cd@midDosageOfGdsc_gdsc']=gdsc_cdmid_list
     FeatureMatrix_sp_ic['cd@maxDosageOfGdsc_ccle']=ccle_cdmax_list
-    FeatureMatrix_sp_ic['cd@maxDosageOfGdsc_gdsc']=gdsc_cdmax_list
+    FeatureMatrix_sp_ic['cd@maxDosageOfGdsc_gdsc']=gdsc_cdmax_list'''
     
     return FeatureMatrix_sp_ic
 
-def get_ic50s_asFeatures(FeatureMatrix):
+def get_ic50s_asFeatures(FeatureMatrix, sample_col_name, drug_col_name):
     ''' get  ic50, slope and cell death at GDSC mid dosage for CCLE and GDSC datasets'''
     [ic50_ccle, m_ccle]=get_ic50slope('CCLE')
-    [ic50_gdsc,m_gdsc]=get_ic50slope('GDSC')
+    [ic50_gdsc,m_gdsc]=get_ic50slope('GDSC1')# earlier it was GDSC
 
     ccle_ic50_list=[]
     gdsc_ic50_list=[]
     
     for i, row in FeatureMatrix.iterrows():
 
-        ind_cl=np.where( ic50_ccle.index == row['Standard cell line name']  )[0]
-        ind_dr=np.where( ic50_ccle.columns == row['Standard drug name'] )[0]
+        ind_cl=np.where( ic50_ccle.index == row[ sample_col_name]  )[0]
+        ind_dr=np.where( ic50_ccle.columns == row[drug_col_name] )[0]
         #print(row['Standard cell line name'] ,  row['Standard drug name'] , ind_cl , ind_dr)
         ccle_ic50_list.append (  ic50_ccle.values[ind_cl , ind_dr  ][0] )
 
-        ind_cl=np.where( ic50_gdsc.index== row['Standard cell line name'])[0]
-        ind_dr=np.where( ic50_gdsc.columns ==row['Standard drug name'] )[0]#str(gdse_dr_id[0]) )[0]
+        ind_cl=np.where( ic50_gdsc.index== row[ sample_col_name])[0]
+        ind_dr=np.where( ic50_gdsc.columns ==row[drug_col_name] )[0]#str(gdse_dr_id[0]) )[0]
         gdsc_ic50_list.append (   ic50_gdsc.values[ind_cl , ind_dr  ][0] )
 
 
 
-    FeatureMatrix['ic50_ccle']=ccle_ic50_list
-    FeatureMatrix['ic50_gdsc']=gdsc_ic50_list
+    FeatureMatrix['IC50_CCLE']=ccle_ic50_list
+    FeatureMatrix['IC50_GDSC1']=gdsc_ic50_list
     
     return FeatureMatrix
 
-def get_ic50slope(dataname):
+def get_ic50slope_old(dataname):
     '''Get IC50 and slope matrices for datasets (CCLE or GDSC)'''
     [dic_cl,dic_dr]=getDictionary2(dataname)
     
@@ -190,6 +190,23 @@ def get_ic50slope(dataname):
     
     return ic50, m
     
+def get_ic50slope(dataname):
+    '''Get IC50 and slope matrices for datasets (CCLE or GDSC)'''
+    
+    
+    if (dataname=='CCLE'):
+        ic50=pd.read_csv('../data_processed/CCLE_ic50.csv', index_col=0) 
+        m=pd.read_csv('../data_processed/CCLE_slope.csv', index_col=0) 
+
+    elif(dataname=='GDSC1'):
+        ic50=pd.read_csv('../data_processed/GDSC1_ic50.csv', index_col=0) 
+        m=pd.read_csv('../data_processed/GDSC1_slope.csv', index_col=0) 
+     
+    else:
+        print("The function has not currently been programmed to return IC50 and slope values for datasets other than CCLE and GDSC!")
+        exit()
+    
+    return ic50, m
 
 def get_common_drugs_metadata(drug_metadata_filename,sheet_name):
     '''Get min dosage, max dosage, overlapping range, GDSc dosage length for drugs common in CCLE and GDSC datasets'''
@@ -342,20 +359,25 @@ def get5DiscretePointsAtFittedCurves(mindosage, ab_dosage, middosage, bc_dosage,
     
     return curve1, curve2
         
-def copyPastePlots(src_folder, dest_folder, algo, superalgofoldername,level, k, Intersection_names):
+def copyPastePlots(src_folder, dest_folder, algo, superalgofoldername,level, k, Intersection_names,clustering=1):
     '''copy cl-dr plots from source to destination folder (used in kms clustering)'''
-    
-    if not exists(dest_folder+'/'+superalgofoldername+algo+'_k='+str(k)+'/'):
-            mkdir(dest_folder+'/'+superalgofoldername+algo+'_k='+str(k)+'/')
-    for cluster_no in np.unique(Intersection_names[[algo+'_'+level+'label']]):#in range(k):
-        if not exists(dest_folder+'/'+superalgofoldername+algo+'_k='+str(k)+'/'+'/cluster_'+str( cluster_no) ):
-            mkdir(dest_folder+'/'+superalgofoldername+algo+'_k='+str(k)+'/'+'/cluster_'+str( cluster_no) )
-    
-    ################### COPY FILES from source folder to a folder corresponding to each cluster
+    if (clustering):
+        if not exists(dest_folder+'/'+superalgofoldername+algo+'_k='+str(k)+'/'):
+                mkdir(dest_folder+'/'+superalgofoldername+algo+'_k='+str(k)+'/')
+        for cluster_no in np.unique(Intersection_names[[algo+'_'+level+'label']]):#in range(k):
+            if not exists(dest_folder+'/'+superalgofoldername+algo+'_k='+str(k)+'/'+'/cluster_'+str( cluster_no) ):
+                mkdir(dest_folder+'/'+superalgofoldername+algo+'_k='+str(k)+'/'+'/cluster_'+str( cluster_no) )
+
+        ################### COPY FILES from source folder to a folder corresponding to each cluster
     for ind, row in Intersection_names.iterrows():
         filename=row['Standard cell line name']+','+row['Standard drug name']+'.png'
-        copyfile(src_folder+filename, dest_folder+'/'+superalgofoldername+algo+'_k='+str(k)+'/'+'/cluster_'+str(row[algo+'_'+level+'label'])+'/'+filename)
-    print("curves saved in folder: ",dest_folder+'/'+superalgofoldername+algo+'_k='+str(k))
+        if (clustering):
+            copyfile(src_folder+filename, dest_folder+'/'+superalgofoldername+algo+'_k='+str(k)+'/'+'/cluster_'+str(row[algo+'_'+level+'label'])+'/'+filename)
+            #print("curves saved in folder: ",dest_folder+'/'+superalgofoldername+algo+'_k='+str(k))
+        else:
+           copyfile(src_folder+filename, dest_folder+filename) 
+    print("curves saved")
+    
 
     
 def copyPastePlotsSubclustering(src_folder, dest_folder, algo, k,cluster_labels, Intersection_names):
